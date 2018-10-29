@@ -1,0 +1,123 @@
+<style>
+	.table1{
+		border-color: lightgray;
+	}
+	.td1,.td2{
+		height: 36px;
+	}
+	.td1{
+		text-align: right;
+		padding-right: 5px;
+		background-color: rgb(230,242,254);
+		font-size: 14px;
+	}
+	.td2{
+		padding-left: 5px;
+	}
+</style>
+<table class="table1" border="1" cellspacing="0" width="1110px">
+    <form id="myform" method="post" action="{% url 'Myadmin:add_logic' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+        <tr>
+		<td class="td1">商品名称:</td>
+		<td class="td2"><input type="text" name="book_name"/></td>
+	</tr>
+        <tr>
+            <td class="td1">作者:</td>
+            <td class="td2"><input type="text" name="book_author"/></td>
+        </tr>
+        <tr>
+            <td class="td1">出版社:</td>
+            <td class="td2"><input type="text" name="book_publish"/></td>
+        </tr>
+        <tr>
+            <td class="td1">商品父类:</td>
+            <td class="td2">
+                <select name="book_main_category" id="book_main_category">
+                    <option value="0">--请选择父类--</option>
+                    {% for cat in catInfo %}
+                        <option>{{ cat.category_name }}</option>
+                    {% endfor %}
+
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td class="td1">商品子类:</td>
+            <td class="td2">
+                <select name="book_category" id="sub_cat">
+                <option>--请选择子类--</option>
+
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="td1">出版日期:</td>
+            <td class="td2">
+                <input type="date" name="publish_time" />
+            </td>
+        </tr>
+        <tr>
+            <td class="td1">市场价:</td>
+            <td class="td2">
+                <input type="text" name="book_price"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td1">当当价:</td>
+            <td class="td2">
+                <input type="text" name="book_dprice"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td1">库存:</td>
+            <td class="td2">
+                <input type="number" name="stock"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="td1">书籍封面:</td>
+            <td class="td2">
+                <input type="file" name="cover_img"/>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="td1"></td>
+            <td class="td2">
+                <input type="submit" value="提交" id="submit"/>
+            </td>
+        </tr>
+    </form>
+</table>
+<script src="/static/js/jquery.1.4.2-min.js"></script>
+        <script>
+            $("#book_main_category").change(function () {
+                $("#sub_cat").empty().append("<option>--请选择子类--</option>")
+                $.get(
+                    "{% url 'Myadmin:add_ajax' %}",
+                    "main_cat="+$(this).val(),
+                    function (flag) {
+                        arr=flag.myname
+                        for(var i=0;i<arr.length;i++){
+                            $("#sub_cat").append("<option>"+arr[i]+"</ option>")
+                        }
+
+
+                    }
+
+
+
+
+                )
+
+
+            })
+
+
+
+
+
+
+        </script>

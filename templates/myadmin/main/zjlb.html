@@ -1,0 +1,62 @@
+<style>
+	.t1{
+		text-align: right;
+		padding-right: 5px;
+		background-color: rgb(230,242,254);
+		width: 46%;
+		font-size: 12px;
+	}
+	.t2{
+		height: 30px;
+		padding-left: 42%;
+		
+	}
+	.t1,.t2{
+		height: 30px;
+	}
+</style>
+<table border="1" cellspacing="0" style="width: 100%;border-color:rgba(180,207,207,0.4)">
+	<tr>
+		<td class="t1">父类名称：</td>
+		<td style="padding-left: 4px;">
+            <form  method="get" id="myform">
+                <input type="text" name="main_cat"/>
+            </form>
+        </td>
+	</tr>
+	<tr>
+		<td class="t2" colspan="2">
+			<input type="button" value="提交" id="submit"/>
+			<input type="button" value="重置" id="reset"/>
+            <span id="hint"></span>
+		</td>
+	</tr>
+</table>
+<script src="/static/js/jquery.1.4.2-min.js"></script>
+<script>
+    $("#submit").click(function () {
+        //异步提交
+        $.get(
+            "{% url 'Myadmin:zjlb_logic' %}",
+            $("#myform").serialize(),
+            function (flag) {
+                if(flag==0){
+                    $("#hint").text("已存在相同类别!!")
+                }else{
+                    $("#hint").text("添加成功")
+                }
+            }
+
+        )
+
+
+    })
+    $("#reset").click(function () {
+
+        location.href="{% url 'Myadmin:zjlb_page' %}"
+    })
+
+
+
+
+</script>

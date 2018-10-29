@@ -1,0 +1,200 @@
+<style>
+	.d1{
+		background-color: rgb(53,60,68);
+		position: relative;
+		height: 30px;
+		line-height: 30px;
+		padding-left: 10px;
+	}
+	.s1{
+		font-size: 12px;
+		color: white;
+	}
+	.s2{
+		position: absolute;
+		right: 10px;
+	}
+	.s2 a{
+		color: white;
+		font-size: 12px;
+		text-decoration: none;
+	}
+	.t1{
+		border-color:aliceblue;
+		margin-top: 2px;
+		font-size: 12px;
+		text-align: center;
+		background-color: rgb(230,242,254);
+	}
+	.bottom{
+		font-size: 13px;
+		padding-left: 15px;
+		position: relative;
+	}
+	.bs{
+		position: absolute;
+		right: 40px;
+	}
+	.bs a{
+		text-decoration: none;
+		color: black;
+	}
+	.bs a:hover{
+		color: cornflowerblue;
+		text-decoration: underline;
+	}
+</style>
+<div class="d1">
+	<span class="s1">管理人员基本信息表</span>
+	<span class="s2">
+		<a href="{% url 'Myadmin:add_page' %}">添加</a>
+		<a href="#">删除</a>
+	</span>
+</div>
+<table border="2" width="100%" cellspacing="0" class="t1">
+     <tr>
+        <button id="btn">批量上/下架</button>
+    </tr>
+    <tr>
+        <form action="{% url 'Myadmin:list_page' %}" method="get" id="myform">
+            <select name="sort_flag" id="sortList">
+                <option value="0">--请选择排序方式--</option>
+                <option value="1">销量升序</option>
+                <option value="2">销量降序</option>
+                <option value="3">上架日期升序</option>
+                <option value="4">上架日期降序</option>
+            </select>
+        </form>
+        <form action="{% url 'Myadmin:list_per_page' %}" method="get" id="mypage">
+            <select name="num_per_page" id="num_per_page">
+                <option value="0">--请选择显示方式--</option>
+                <option value="5">每页5条</option>
+                <option value="10">每页10条</option>
+                <option value="30">每页30条</option>
+                <option value="50">每页50条</option>
+                <option value="100">每页100条</option>
+            </select>
+        </form>
+
+
+    </tr>
+
+
+	<tr>
+		<td>
+			选择
+		</td>
+		<td>商品ID</td>
+		<td>商品名称</td>
+		<td>作者</td>
+		<td>出版社</td>
+		<td>市场价</td>
+		<td>当当价</td>
+		<td>库存</td>
+		<td>销量</td>
+		<td>商品种类</td>
+        <td>出版日期</td>
+        <td>上架日期</td>
+        <td>在架标记(1:在架/0:下架)</td>
+        <td>书籍封面</td>
+		<td>基本操作</td>
+	</tr>
+    {% for book in page %}
+    <tr>
+		<td id="checkbook">
+			<input type="checkbox" value="{{ book.id }}" />
+		</td>
+		<td>{{ book.id }}</td>
+		<td>{{ book.book_name }}</td>
+		<td>{{ book.book_author }}</td>
+		<td>{{ book.book_publish }}</td>
+		<td>{{ book.book_price }}</td>
+		<td>{{ book.book_dprice }}</td>
+		<td>{{ book.stock }}</td>
+		<td>{{ book.sales }}</td>
+		<td>{{ book.book_category.category_name }}</td>
+        <td>{{ book.publish_time|date:'Y-m-d' }}</td>
+        <td>{{ book.shelves_date|date:'Y-m-d' }}</td>
+        <td>{{ book.book_status }}</td>
+        <td><img src="/static/{{ book.product_image_path.url }}" alt="" style="height: 20px;"></td>
+		<td>
+            {% if book.book_status %}
+            <a href="{% url 'Myadmin:list_logic' %}?id={{ book.id }}">下架</a>
+            {% else %}
+            <a href="{% url 'Myadmin:list_logic' %}?id={{ book.id }}">上架</a>
+            {% endif %}
+        </td>
+	</tr>
+    {% endfor %}
+
+</table>
+<script src="/static/js/jquery.1.4.2-min.js"></script>
+<script>
+    $("#sortList").change(function () {
+
+        $("#myform").submit()
+        $(this).attr("value",$(this).val())
+
+    })
+
+    $("#num_per_page").change(function () {
+
+        $("#mypage").submit()
+        $(this).attr("value",$(this).val())
+
+    })
+
+    //定义批量下架的逻辑
+    $("#btn").click(function () {
+        book_id=""
+        $("#checkbook input[type=checkbox]").each(function () {
+            $(this).find("[checked]")
+            if(this.checked){
+                book_id+=$(this).val()+","
+            }
+
+        })
+        location.href="{% url 'Myadmin:package_logic' %}?id="+book_id
+
+    })
+
+</script>
+
+<div class="bottom">
+	共有 {{ page|length }} 条记录，当前第{{ page.number }} 页，共 <span id="total">{{ page.paginator.num_pages }}</span> 页
+    跳到第<input type="text" style="width: 25px;" id="jump_num">页 <input type="button" value="跳转" id="jump">
+	<span class="bs">
+		{% if page.has_previous %}
+		<a href="{% url 'Myadmin:list_page' %}?num={{ page.previous_page_number }}" style="margin-right: 20px;">上一页</a>
+		{% endif %}
+		
+		{% if page.has_next%}
+		<a href="{% url 'Myadmin:list_page' %}?num={{ page.next_page_number }}">下一页</a>
+		{% endif %}
+	</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    {% for i in page.paginator.page_range %}
+        <span style="border: 1px solid black;
+        width: 25px;
+        height: 25px;
+        display: inline-block;
+        text-align: center;
+         line-height: 25px"><a href="{% url 'Myadmin:list_page' %}?num={{ i }}">{{ i }}</a></span>
+
+    {% endfor %}
+
+</div>
+<script src="/static/js/jquery.1.4.2-min.js"></script>
+<script>
+    $("#jump").click(function () {
+        num=$("#jump_num").val()
+        total_num = $("#total").text()
+        if(num<=total_num){
+            window.location.href="{% url 'Myadmin:list_page' %}?num="+num
+        }else{
+            window.location.href="{% url 'Myadmin:list_page' %}?num="+total_num
+        }
+    })
+
+
+</script>
